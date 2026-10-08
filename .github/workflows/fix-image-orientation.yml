@@ -1,0 +1,57 @@
+name: Fix EVOLET image orientation
+
+on:
+  push:
+    branches:
+      - fix/image-orientation
+    paths:
+      - .github/workflows/fix-image-orientation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/image-orientation
+          fetch-depth: 0
+
+      - name: Ensure image tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v convert >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y imagemagick
+          fi
+
+      - name: Correct sideways photos
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in assort_large.webp cookie_cream.webp green.webp green_detail.webp; do
+            tmp="$(mktemp --suffix=.webp)"
+            convert "src/assets/$file" -rotate -90 -quality 92 "$tmp"
+            mv "$tmp" "src/assets/$file"
+          done
+          test "$(identify -format '%wx%h' src/assets/assort_large.webp)" = "480x720"
+          test "$(identify -format '%wx%h' src/assets/cookie_cream.webp)" = "1067x1600"
+          test "$(identify -format '%wx%h' src/assets/green.webp)" = "1067x1600"
+          test "$(identify -format '%wx%h' src/assets/green_detail.webp)" = "1067x1600"
+          npm test --prefix src
+
+      - name: Commit exact corrections
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/fix-image-orientation.yml
+          rmdir --ignore-fail-on-non-empty .github/workflows .github 2>/dev/null || true
+          git config user.name 'fevepe1510-collab'
+          git config user.email '305039839+fevepe1510-collab@users.noreply.github.com'
+          git add -A
+          git commit -m 'Correct four sideways EVOLET photos [skip ci]'
+          git push origin HEAD:fix/image-orientation
