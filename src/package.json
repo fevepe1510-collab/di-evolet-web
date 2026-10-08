@@ -1,0 +1,12 @@
+{
+  "name": "di-evolet-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Experiencia editorial e interactiva Di Evolet",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "node --check script.js && node --check config.js"
+  },
+  "engines": { "node": ">=18" }
+}

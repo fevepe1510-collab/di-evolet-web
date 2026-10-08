@@ -1,0 +1,7 @@
+(()=>{
+  const A='assets/';
+  const chapters=[
+    {eyebrow:'01 — UNA ACTITUD',head:'Un rojo<br><em>inolvidable.</em>',desc:'Una galleta con carácter. Color profundo, textura generosa y una forma de destacar que no necesita presentación.',img:'red-cut.png',alt:'Galleta roja Evolet',detail:'red_open.webp',detailAlt:'Galleta roja abierta',detailText:'El rojo se lleva todas las miradas.',ghost:'RED'},
+    {eyebrow:'02 — INTENSIDAD',head:'Todo el<br><em>carácter del cacao.</em>',desc:'Detalles de chocolate, capas de textura y una presencia que transforma lo cotidiano en un pequeño acontecimiento.',img:'chocolate-cut.png',alt:'Galleta con detalles de chocolate',detail:'choc_duo.webp',detailAlt:'Dúo de galletas con chocolate',detailText:'Una interpretación más intensa.',ghost:'CACAO'},
+    {eyebrow:'03 — EL INTERIOR IMPORTA',head:'Por fuera.<br><em>Por dentro.</em>',desc:'Una sorpresa verde que se descubre al partirla. A veces, el mejor momento está justo en el centro.',img:'green-cut.png',alt:'Galleta con relleno verde',detail:'green_crack.webp',detailAlt:'Galleta abierta mostrando su relleno',detailText:'Un centro que se roba la escena.',ghost:'CENTER'},
+    {eyebrow:'04 — LO ESENCIAL',head:'Dorada.<br><em>Y nada más que decir.</em>',desc:'Una versión clara, dorada y delicada. Porque a veces los detalles más pequeños terminan siendo los más importantes.',img:'hero-cut.png',alt:'Galleta clara con caramelo',detail:'cream.webp',detailAlt:'Galleta clásica color ���q�^
