@@ -1,0 +1,74 @@
+name: Recover EVOLET source
+
+on:
+  push:
+    branches:
+      - backup/vercel-2026-10-08
+    paths:
+      - .github/workflows/recover-evolet.yml
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: backup/vercel-2026-10-08
+          fetch-depth: 0
+
+      - name: Recover exact deployed files
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://di-evolet-web-funcional-5lqg21yuv-fevepe1510-4306s-projects.vercel.app'
+          curl --fail --silent --show-error --retry 3 "$base/" -o src/index.html
+          for file in src/styles.css src/script.js src/config.js src/server.mjs; do
+            path="${file#src/}"
+            curl --fail --silent --show-error --retry 3 "$base/$path" -o "$file"
+          done
+          while IFS= read -r -d '' file; do
+            path="${file#src/}"
+            curl --fail --silent --show-error --retry 3 "$base/$path" -o "$file"
+          done < <(find src/assets -type f -print0)
+
+      - name: Verify recovered project
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find src -type f | wc -l)" -eq 50
+          test "$(find src/assets -type f | wc -l)" -eq 42
+          test "$(stat -c%s src/index.html)" -gt 20000
+          test "$(stat -c%s src/styles.css)" -gt 40000
+          test "$(stat -c%s src/script.js)" -gt 10000
+          test "$(stat -c%s src/assets/red-velvet-film.mp4)" -gt 2000000
+          test -z "$(find src -type f -empty -print)"
+          npm test --prefix src
+          (
+            cd src
+            node server.mjs >/tmp/evolet-server.log 2>&1 &
+            server_pid=$!
+            trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+            for attempt in 1 2 3 4 5; do
+              curl --fail --silent --show-error http://127.0.0.1:3000/ -o /dev/null && break
+              sleep 1
+            done
+            while IFS= read -r -d '' file; do
+              curl --fail --silent --show-error "http://127.0.0.1:3000/$file" -o /dev/null
+            done < <(find assets -type f -print0)
+          )
+
+      - name: Commit recovered backup
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/recover-evolet.yml
+          rmdir --ignore-fail-on-non-empty .github/workflows .github 2>/dev/null || true
+          git config user.name 'fevepe1510-collab'
+          git config user.email '305039839+fevepe1510-collab@users.noreply.github.com'
+          git add -A
+          git commit -m 'Restore complete EVOLET source from Vercel [skip ci]'
+          git push origin HEAD:backup/vercel-2026-10-08
