@@ -124,12 +124,19 @@
   overlay.querySelectorAll('[data-selection-close]').forEach(el=>el.addEventListener('click',close));
   list.addEventListener('click',e=>{let b=e.target.closest('button[data-change]');if(!b)return;let t=b.dataset.title;let next=Math.max(0,Math.min(99,(cart.get(t)||0)+Number(b.dataset.change)));next?cart.set(t,next):cart.delete(t);render();});
   $('add-to-selection').addEventListener('click',()=>{let title=$('modal-title').textContent;add(title);document.querySelector('#product-modal .modal-close').click();open();});
-  function message(items){return `${conf.orderIntro||'Hola, EVOLET. Quisiera hacer este pedido:'}
-${items.map(([title,qty])=>{let p=products.get(title);return `• ${p.kind==='mini'?'Mini Cookies':'Bigg Cookies'} — ${title} | ${qty} ${p.kind==='mini'?'caja(s) x6':'unidad(es)'} × ${money(p.price)} = ${money(qty*p.price)}`}).join('\n')}
+  function message(items){const hasMini=items.some(([title])=>products.get(title).kind==='mini');return `${conf.orderIntro||'Hola, EVOLET 👋 Quiero confirmar el siguiente pedido:'}
 
-TOTAL PRODUCTOS: ${money(subtotal())} COP (sin envío).
-Por favor confírmenme disponibilidad, costo del envío y cómo pagar.
-Nota: la caja Mini x6 es surtida; composición por confirmar.`;}
+${items.map(([title,qty])=>{let p=products.get(title);return `• ${qty} ${p.kind==='mini'?'caja(s) x6':'unidad(es)'} de ${title} (${p.kind==='mini'?'Mini Cookies':'Bigg Cookies'}) — ${money(qty*p.price)}`}).join('\n')}
+
+TOTAL ESTIMADO: ${money(subtotal())} COP
+El total no incluye envío.${hasMini?'\nLa caja Mini x6 es surtida; por favor confirmen su composición.':''}
+
+Mis datos:
+• Nombre:
+• Ciudad / barrio:
+• Entrega o recogida:
+
+Por favor confírmenme disponibilidad, costo del envío y medios de pago.`;}
   async function contact(msg){const phone=String(conf.whatsapp||'').replace(/\D/g,'');
     if(phone){window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');notice('Abriendo WhatsApp');return;}
     let w=window.open(conf.instagram||'https://www.instagram.com/di_evolet/','_blank','noopener,noreferrer');try{await navigator.clipboard.writeText(msg);feedback.textContent='Pedido copiado. Pégalo en el chat de Instagram con EVOLET.';notice('Pedido copiado');}catch{feedback.textContent='Copia este mensaje para enviarlo a EVOLET: '+msg;notice('Revisa el pedido y cópialo');}if(!w)feedback.textContent+=' Si no se abrió Instagram, usa el enlace del pie de página.';
