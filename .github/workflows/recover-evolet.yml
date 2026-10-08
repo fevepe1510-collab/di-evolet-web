@@ -72,3 +72,5 @@ jobs:
           git add -A
           git commit -m 'Restore complete EVOLET source from Vercel [skip ci]'
           git push origin HEAD:backup/vercel-2026-10-08
+
+# One-time recovery trigger
